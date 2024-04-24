@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WebKit
+import AppKit
 
 struct ContentView: View {
     let websites = [
@@ -24,8 +25,15 @@ struct ContentView: View {
         Website(name: "Speedometer", urlString: "https://browserbench.org/Speedometer2.1/", imageName: "Speedometer"),
     ]
     
+    @State private var clearDataOnClose = true
+    
     var body: some View {
         VStack {
+            Toggle(isOn: $clearDataOnClose) {
+                Text("Clear my data when I close Veil")
+            }
+            .padding()
+
             let logoscale = 10;
             Image("Veil")
                 .resizable()
@@ -69,7 +77,6 @@ struct ContentView: View {
         }
     }
     
-    
     struct ContentView_Previews: PreviewProvider {
         static var previews: some View {
             ContentView()
@@ -103,11 +110,41 @@ struct ContentView: View {
         print("Sending 'DO NOT SELL' request...")
         let dnsmpiScript = WKUserScript(source: "navigator.globalPrivacyControl = '1';", injectionTime: .atDocumentStart, forMainFrameOnly: true)
         configuration.userContentController.addUserScript(dnsmpiScript)
-        print("Stopping cookies...")
-        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
-
+        if (clearDataOnClose) {
+            print("Stopping cookies...")
+            configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        } else {
+            print("Allowing cookies...")
+        }
         let webView = WKWebView(frame: .zero, configuration: configuration)
-        
         return webView
+    }
+}
+
+struct Tab: Identifiable {
+    let id = UUID()
+    let url: URL
+    let window: NSWindow?
+}
+
+class TabManager: ObservableObject {
+    @Published var tabs: [Tab] = []
+    @Published var activeTabIndex: Int = 0
+
+    func addTab(_ tab: Tab) {
+        tabs.append(tab)
+        activeTabIndex = tabs.count - 1
+    }
+
+    func removeTab(at index: Int) {
+        tabs.remove(at: index)
+        if activeTabIndex >= tabs.count {
+            activeTabIndex = tabs.count - 1
+        }
+    }
+
+    func getActiveTab() -> Tab? {
+        guard activeTabIndex < tabs.count else { return nil }
+        return tabs[activeTabIndex]
     }
 }
