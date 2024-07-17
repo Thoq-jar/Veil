@@ -292,7 +292,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = "Version 1.3                                                                       Release date 4/24/24                                                                       Built on WebKit                                                                       Developed by Veil Industries                                                                       https://github.com/Thoq-jar/Veil.git";
+				MARKETING_VERSION = "Version 1.4                                                                       Release date 4/24/24                                                                       Built on WebKit                                                                       Developed by Veil Industries                                                                       https://github.com/Thoq-jar/Veil.git";
 				PRODUCT_BUNDLE_IDENTIFIER = tristan.Veil;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = macosx;
