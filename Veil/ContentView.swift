@@ -9,6 +9,27 @@ import SwiftUI
 import WebKit
 import AppKit
 
+struct VisualEffectView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = NSVisualEffectView()
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+struct TransparentButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(0)
+            .background(Color.clear)
+            .foregroundColor(.primary)
+            .padding(0)
+    }
+}
+
+
 struct ContentView: View {
     let websites = [
         Website(name: "DuckDuckGo", urlString: "https://www.duckduckgo.com", imageName: "DuckDuckGo"),
@@ -30,9 +51,15 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Toggle(isOn: $clearDataOnClose) {
-                Text("Clear my data when I close Veil")
+                Text("Paranoid Mode")
             }
             .padding()
+            .onChange(of: clearDataOnClose) { oldValue, newValue in
+                windowTitle()
+            }
+            .onAppear {
+                windowTitle()
+            }
 
             let logoscale = 10;
             Image("Veil")
@@ -58,8 +85,18 @@ struct ContentView: View {
                         }
                     }
                 }
+                .buttonStyle(TransparentButtonStyle())
                 .padding()
             }
+        }
+    }
+    
+    func windowTitle() {
+        NSApp.mainWindow?.title = "Veil (Paranoid mode) - Welcome"
+        if (clearDataOnClose) {
+            NSApp.mainWindow?.title = "Veil (Paranoid mode) - Welcome"
+        } else {
+            NSApp.mainWindow?.title = "Veil - Welcome"
         }
     }
     
@@ -70,7 +107,12 @@ struct ContentView: View {
             
             let hostingController = NSHostingController(rootView: WebView(webView: webView))
             let window = NSWindow(contentViewController: hostingController)
-            window.title = "Veil - \(title)"
+            if (clearDataOnClose) {
+                window.title = "Veil (Paranoid mode) - \(title)"
+            } else {
+                window.title = "Veil - \(title)"
+                NSApp.mainWindow?.title = "Veil - Welcome"
+            }
             window.setFrame(NSRect(x: 0, y: 0, width: 1600, height: 900), display: true)
             window.makeKeyAndOrderFront(nil)
             window.center()
